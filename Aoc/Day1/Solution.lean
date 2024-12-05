@@ -1,20 +1,22 @@
 def List.sequence {m α} [Monad m] (lst: List (m α)) : m (List α) := List.mapM id lst
 
 def parse (raw : String) : Option (List (Int × Int)) :=
-  raw.splitOn "\n"
-    |> List.map (String.splitOn · "   ")
-    |> List.map (List.map String.toInt?)
-    |> List.map List.sequence
-    |> List.filter Option.isSome
-    |> List.sequence
-    |> Option.map (List.map (λ x => match x with | [a, b] => some (a, b) | _ => none))
-    |> Option.map List.sequence
-    |> Option.join
+  raw
+    |>.splitOn "\n"
+    |>.map (String.splitOn · "   ")
+    |>.map (List.map String.toInt?)
+    |>.map List.sequence
+    |>.filter Option.isSome
+    |>.sequence
+    |>.map (List.map (λ x => match x with | [a, b] => some (a, b) | _ => none))
+    |>.map List.sequence
+    |>.join
 
 def solve (input: List (Int × Int)) : Nat :=
-  input.unzip
+  input
+    |>.unzip
     |> λ (a, b) => List.map (λ (x, y) => (x - y).natAbs) (a.mergeSort.zip b.mergeSort)
-    |> List.sum
+    |>.sum
 
 def parseAndSolve := Option.map solve ∘ parse
 
